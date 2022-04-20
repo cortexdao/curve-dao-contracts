@@ -146,8 +146,8 @@ def gauge_v3(LiquidityGaugeV3, alice, mock_lp_token, minter):
 
 
 @pytest.fixture(scope="module")
-def cortex_gauge(CortexLiquidityGauge, alice, mock_lp_token, minter):
-    yield CortexLiquidityGauge.deploy(mock_lp_token, minter, alice, {"from": alice})
+def cortex_gauge(CortexLiquidityGauge, alice, mock_lp_token):
+    yield CortexLiquidityGauge.deploy(mock_lp_token, alice, {"from": alice})
 
 
 @pytest.fixture(scope="module")
