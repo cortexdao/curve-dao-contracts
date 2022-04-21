@@ -72,7 +72,6 @@ minter: public(address)
 crv_token: public(address)
 lp_token: public(address)
 voting_escrow: public(address)
-future_epoch_time: public(uint256)
 
 balanceOf: public(HashMap[address, uint256])
 totalSupply: public(uint256)
@@ -149,7 +148,6 @@ def __init__(_lp_token: address, _minter: address, _admin: address, _voting_escr
 
     self.period_timestamp[0] = block.timestamp
     self.inflation_rate = CRV20(crv_token).rate()
-    self.future_epoch_time = CRV20(crv_token).future_epoch_time_write()
 
 
 @view
@@ -293,14 +291,8 @@ def _checkpoint(addr: address):
     _period: int128 = self.period
     _period_time: uint256 = self.period_timestamp[_period]
     _integrate_inv_supply: uint256 = self.integrate_inv_supply[_period]
-    rate: uint256 = self.inflation_rate
-    new_rate: uint256 = rate
-    prev_future_epoch: uint256 = self.future_epoch_time
-    if prev_future_epoch >= _period_time:
-        _token: address = self.crv_token
-        self.future_epoch_time = CRV20(_token).future_epoch_time_write()
-        new_rate = CRV20(_token).rate()
-        self.inflation_rate = new_rate
+    _token: address = self.crv_token
+    rate: uint256 = CRV20(_token).rate()
 
     if self.is_killed:
         # Stop distributing inflation as soon as killed
@@ -317,17 +309,7 @@ def _checkpoint(addr: address):
             w: uint256 = 1
 
             if _working_supply > 0:
-                if prev_future_epoch >= prev_week_time and prev_future_epoch < week_time:
-                    # If we went across one or multiple epochs, apply the rate
-                    # of the first epoch until it ends, and then the rate of
-                    # the last epoch.
-                    # If more than one epoch is crossed - the gauge gets less,
-                    # but that'd meen it wasn't called for more than 1 year
-                    _integrate_inv_supply += rate * w * (prev_future_epoch - prev_week_time) / _working_supply
-                    rate = new_rate
-                    _integrate_inv_supply += rate * w * (week_time - prev_future_epoch) / _working_supply
-                else:
-                    _integrate_inv_supply += rate * w * dt / _working_supply
+                _integrate_inv_supply += rate * w * dt / _working_supply
                 # On precisions of the calculation
                 # rate ~= 10e18
                 # last_weight > 0.01 * 1e18 = 1e16 (if pool weight is 1%)
