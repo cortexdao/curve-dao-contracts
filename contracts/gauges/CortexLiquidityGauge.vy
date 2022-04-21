@@ -18,15 +18,6 @@ interface CRV20:
     def future_epoch_time_write() -> uint256: nonpayable
     def rate() -> uint256: view
 
-interface Controller:
-    def period() -> int128: view
-    def period_write() -> int128: nonpayable
-    def period_timestamp(p: int128) -> uint256: view
-    def gauge_relative_weight(addr: address, time: uint256) -> uint256: view
-    def voting_escrow() -> address: view
-    def checkpoint(): nonpayable
-    def checkpoint_gauge(addr: address): nonpayable
-
 interface Minter:
     def token() -> address: view
     def controller() -> address: view
@@ -80,7 +71,6 @@ CLAIM_FREQUENCY: constant(uint256) = 3600
 minter: public(address)
 crv_token: public(address)
 lp_token: public(address)
-controller: public(address)
 voting_escrow: public(address)
 future_epoch_time: public(uint256)
 
@@ -137,7 +127,7 @@ is_killed: public(bool)
 
 
 @external
-def __init__(_lp_token: address, _minter: address, _admin: address):
+def __init__(_lp_token: address, _minter: address, _admin: address, _voting_escrow: address):
     """
     @notice Contract constructor
     @param _lp_token Liquidity Pool contract address
@@ -150,14 +140,12 @@ def __init__(_lp_token: address, _minter: address, _admin: address):
     self.symbol = concat(symbol, "-gauge")
 
     crv_token: address = Minter(_minter).token()
-    controller: address = Minter(_minter).controller()
 
     self.lp_token = _lp_token
     self.minter = _minter
     self.admin = _admin
     self.crv_token = crv_token
-    self.controller = controller
-    self.voting_escrow = Controller(controller).voting_escrow()
+    self.voting_escrow = _voting_escrow
 
     self.period_timestamp[0] = block.timestamp
     self.inflation_rate = CRV20(crv_token).rate()
@@ -321,14 +309,12 @@ def _checkpoint(addr: address):
     # Update integral of 1/supply
     if block.timestamp > _period_time:
         _working_supply: uint256 = self.working_supply
-        _controller: address = self.controller
-        Controller(_controller).checkpoint_gauge(self)
         prev_week_time: uint256 = _period_time
         week_time: uint256 = min((_period_time + WEEK) / WEEK * WEEK, block.timestamp)
 
         for i in range(500):
             dt: uint256 = week_time - prev_week_time
-            w: uint256 = Controller(_controller).gauge_relative_weight(self, prev_week_time / WEEK * WEEK)
+            w: uint256 = 1
 
             if _working_supply > 0:
                 if prev_future_epoch >= prev_week_time and prev_future_epoch < week_time:
