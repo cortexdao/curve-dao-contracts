@@ -22,8 +22,11 @@ event Minted:
     gauge: address
     minted: uint256
 
-event SetAdmin:
+event AdminSet:
     admin: address
+
+event RateSet:
+    rate: uint256
 
 
 admin: public(address)
@@ -56,13 +59,14 @@ def set_admin(_admin: address):
     """
     assert msg.sender == self.admin  # dev: admin only
     self.admin = _admin
-    log SetAdmin(_admin)
+    log AdminSet(_admin)
 
 
 @external
 def set_rate(_rate: uint256):
     assert msg.sender == self.admin  # dev: admin only
     self.rate = _rate
+    log RateSet(_rate)
 
 
 @external
