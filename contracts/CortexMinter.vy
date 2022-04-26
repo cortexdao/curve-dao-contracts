@@ -22,10 +22,13 @@ event Minted:
     gauge: address
     minted: uint256
 
+event SetAdmin:
+    admin: address
 
 
 admin: public(address)
 token: public(address)
+
 # rewards in wei per second
 rate: public(uint256)
 
@@ -45,6 +48,15 @@ def __init__(_token: address):
     self.admin = msg.sender
 
 
+@external
+def set_admin(_admin: address):
+    """
+    @notice Set the new admin.
+    @param _admin New admin address
+    """
+    assert msg.sender == self.admin  # dev: admin only
+    self.admin = _admin
+    log SetAdmin(_admin)
 
 
 @external
