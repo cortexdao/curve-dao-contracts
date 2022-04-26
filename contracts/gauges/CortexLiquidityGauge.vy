@@ -99,8 +99,6 @@ integrate_checkpoint_of: public(HashMap[address, uint256])
 # Units: rate * t = already number of coins per address to issue
 integrate_fraction: public(HashMap[address, uint256])
 
-inflation_rate: public(uint256)
-
 # For tracking external rewards
 reward_data: uint256
 reward_tokens: public(address[MAX_REWARDS])
@@ -147,7 +145,6 @@ def __init__(_lp_token: address, _minter: address, _admin: address, _voting_escr
     self.voting_escrow = _voting_escrow
 
     self.period_timestamp[0] = block.timestamp
-    self.inflation_rate = CRV20(crv_token).rate()
 
 
 @view
