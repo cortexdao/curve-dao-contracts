@@ -7,6 +7,35 @@ MONTH = 86400 * 30
 WEEK = 7 * 86400
 
 
+def test_set_rate_permission(accounts, cortex_minter):
+    with brownie.reverts("dev: admin only"):
+        cortex_minter.set_rate(1e18, {"from": accounts[1]})
+
+
+def test_set_rate(accounts, cortex_minter):
+    assert cortex_minter.rate() == 0
+    cortex_minter.set_rate(1e18, {"from": accounts[0]})
+    assert cortex_minter.rate() == 1e18
+
+
+def test_add_gauge_permission(accounts, cortex_minter):
+    with brownie.reverts("dev: admin only"):
+        cortex_minter.add_gauge(accounts[0], {"from": accounts[1]})
+
+
+def test_remove_gauge_permission(accounts, cortex_minter):
+    with brownie.reverts("dev: admin only"):
+        cortex_minter.remove_gauge(accounts[0], {"from": accounts[1]})
+
+
+def test_gauge_registration(accounts, cortex_minter):
+    cortex_minter.add_gauge(accounts[1], {"from": accounts[0]})
+    assert cortex_minter.gauge_registered(accounts[1])
+
+    cortex_minter.remove_gauge(accounts[1], {"from": accounts[0]})
+    assert not cortex_minter.gauge_registered(accounts[1])
+
+
 @pytest.fixture(scope="module", autouse=True)
 def minter_setup(accounts, mock_lp_token, token, cortex_minter, gauge_controller, three_cortex_gauges, chain):
     token.set_minter(cortex_minter, {"from": accounts[0]})
@@ -27,7 +56,7 @@ def minter_setup(accounts, mock_lp_token, token, cortex_minter, gauge_controller
         mock_lp_token.approve(gauge, 1e18, {"from": acct})
 
     # set the total emissions rate
-    cortex_minter.set_rate(1e18)
+    cortex_minter.set_rate(1e18, {"from": accounts[0]})
 
 
 def test_mint(accounts, chain, three_cortex_gauges, cortex_minter, token):
