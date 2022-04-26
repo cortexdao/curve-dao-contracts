@@ -201,6 +201,15 @@ def three_gauges(LiquidityGauge, accounts, mock_lp_token, minter):
 
     yield contracts
 
+@pytest.fixture(scope="module")
+def three_cortex_gauges(CortexLiquidityGauge, accounts, mock_lp_token, cortex_minter, voting_escrow):
+    contracts = [
+        CortexLiquidityGauge.deploy(mock_lp_token, cortex_minter, accounts[0], voting_escrow, {"from": accounts[0]})
+        for _ in range(3)
+    ]
+
+    yield contracts
+
 
 # VestingEscrow fixtures
 
