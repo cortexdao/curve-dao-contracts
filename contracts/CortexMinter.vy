@@ -23,6 +23,8 @@ event Minted:
     minted: uint256
 
 
+
+admin: public(address)
 token: public(address)
 # rewards in wei per second
 rate: public(uint256)
@@ -40,20 +42,26 @@ gauge_registered: public(HashMap[address, bool])
 @external
 def __init__(_token: address):
     self.token = _token
+    self.admin = msg.sender
+
+
 
 
 @external
 def set_rate(_rate: uint256):
+    assert msg.sender == self.admin  # dev: admin only
     self.rate = _rate
 
 
 @external
 def add_gauge(gauge_addr: address):
+    assert msg.sender == self.admin  # dev: admin only
     self.gauge_registered[gauge_addr] = True
 
 
 @external
 def remove_gauge(gauge_addr: address):
+    assert msg.sender == self.admin  # dev: admin only
     self.gauge_registered[gauge_addr] = False
 
 
