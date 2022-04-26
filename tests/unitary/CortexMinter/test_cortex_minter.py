@@ -3,10 +3,6 @@ import itertools
 import brownie
 import pytest
 
-TYPE_WEIGHTS = [5e17, 1e19]
-GAUGE_WEIGHTS = [1e19, 1e18, 5e17]
-GAUGE_TYPES = [0, 0, 1]
-
 MONTH = 86400 * 30
 WEEK = 7 * 86400
 
@@ -18,15 +14,9 @@ def minter_setup(accounts, mock_lp_token, token, cortex_minter, gauge_controller
     # ensure the tests all begin at the start of the epoch week
     chain.mine(timestamp=(chain.time() / WEEK + 1) * WEEK)
 
-    # set types
-    for weight in TYPE_WEIGHTS:
-        gauge_controller.add_type(b"Liquidity", weight, {"from": accounts[0]})
-
     # add gauges
     for i in range(3):
-        gauge_controller.add_gauge(
-            three_cortex_gauges[i], GAUGE_TYPES[i], GAUGE_WEIGHTS[i], {"from": accounts[0]}
-        )
+        pass
 
     # transfer tokens
     for acct in accounts[1:4]:
