@@ -26,6 +26,9 @@ def minter_setup(accounts, mock_lp_token, token, cortex_minter, gauge_controller
     for gauge, acct in itertools.product(three_cortex_gauges, accounts[1:4]):
         mock_lp_token.approve(gauge, 1e18, {"from": acct})
 
+    # set the total emissions rate
+    cortex_minter.set_rate(1e18)
+
 
 def test_mint(accounts, chain, three_cortex_gauges, cortex_minter, token):
     three_cortex_gauges[0].deposit(1e18, {"from": accounts[1]})

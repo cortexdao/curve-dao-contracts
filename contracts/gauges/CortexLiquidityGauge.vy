@@ -14,13 +14,10 @@ from vyper.interfaces import ERC20
 implements: ERC20
 
 
-interface CRV20:
-    def future_epoch_time_write() -> uint256: nonpayable
-    def rate() -> uint256: view
-
 interface Minter:
     def token() -> address: view
     def minted(user: address, gauge: address) -> uint256: view
+    def rate() -> uint256: view
 
 interface VotingEscrow:
     def user_point_epoch(addr: address) -> uint256: view
@@ -135,12 +132,9 @@ def __init__(_lp_token: address, _minter: address, _admin: address, _voting_escr
     self.name = concat("Curve.fi ", symbol, " Gauge Deposit")
     self.symbol = concat(symbol, "-gauge")
 
-    crv_token: address = Minter(_minter).token()
-
     self.lp_token = _lp_token
     self.minter = _minter
     self.admin = _admin
-    self.crv_token = crv_token
     self.voting_escrow = _voting_escrow
 
     self.period_timestamp[0] = block.timestamp
@@ -287,8 +281,8 @@ def _checkpoint(addr: address):
     _period: int128 = self.period
     _period_time: uint256 = self.period_timestamp[_period]
     _integrate_inv_supply: uint256 = self.integrate_inv_supply[_period]
-    _token: address = self.crv_token
-    rate: uint256 = CRV20(_token).rate()
+    _minter: address = self.minter
+    rate: uint256 = Minter(_minter).rate()
 
     if self.is_killed:
         # Stop distributing inflation as soon as killed

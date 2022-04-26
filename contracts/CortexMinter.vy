@@ -24,6 +24,8 @@ event Minted:
 
 
 token: public(address)
+# rewards in wei per second
+rate: public(uint256)
 
 # user -> gauge -> value
 minted: public(HashMap[address, HashMap[address, uint256]])
@@ -35,6 +37,11 @@ allowed_to_mint_for: public(HashMap[address, HashMap[address, bool]])
 @external
 def __init__(_token: address):
     self.token = _token
+
+
+@external
+def set_rate(_rate: uint256):
+    self.rate = _rate
 
 
 @internal
