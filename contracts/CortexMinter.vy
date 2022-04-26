@@ -33,6 +33,9 @@ minted: public(HashMap[address, HashMap[address, uint256]])
 # minter -> user -> can mint?
 allowed_to_mint_for: public(HashMap[address, HashMap[address, bool]])
 
+# gauge -> registered?
+gauge_registered: public(HashMap[address, bool])
+
 
 @external
 def __init__(_token: address):
@@ -44,9 +47,19 @@ def set_rate(_rate: uint256):
     self.rate = _rate
 
 
+@external
+def add_gauge(gauge_addr: address):
+    self.gauge_registered[gauge_addr] = True
+
+
+@external
+def remove_gauge(gauge_addr: address):
+    self.gauge_registered[gauge_addr] = False
+
+
 @internal
 def _mint_for(gauge_addr: address, _for: address):
-    # FIXME: check gauge_addr is registered, throw if not
+    assert self.gauge_registered[gauge_addr]  # dev: gauge is not added
 
     LiquidityGauge(gauge_addr).user_checkpoint(_for)
     total_mint: uint256 = LiquidityGauge(gauge_addr).integrate_fraction(_for)

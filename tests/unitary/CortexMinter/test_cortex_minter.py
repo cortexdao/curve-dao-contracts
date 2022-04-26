@@ -16,7 +16,7 @@ def minter_setup(accounts, mock_lp_token, token, cortex_minter, gauge_controller
 
     # add gauges
     for i in range(3):
-        pass
+        cortex_minter.add_gauge(three_cortex_gauges[i], {"from": accounts[0]})
 
     # transfer tokens
     for acct in accounts[1:4]:
