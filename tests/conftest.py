@@ -104,6 +104,11 @@ def minter(Minter, accounts, gauge_controller, token):
 
 
 @pytest.fixture(scope="module")
+def cortex_minter(CortexMinter, accounts, token):
+    yield CortexMinter.deploy(token, {"from": accounts[0]})
+
+
+@pytest.fixture(scope="module")
 def crypto_pool_proxy(alice, CryptoPoolProxy):
     return CryptoPoolProxy.deploy(alice, alice, alice, {"from": alice})
 
@@ -146,8 +151,8 @@ def gauge_v3(LiquidityGaugeV3, alice, mock_lp_token, minter):
 
 
 @pytest.fixture(scope="module")
-def cortex_gauge(CortexLiquidityGauge, alice, mock_lp_token, minter, voting_escrow):
-    yield CortexLiquidityGauge.deploy(mock_lp_token, minter, alice, voting_escrow, {"from": alice})
+def cortex_gauge(CortexLiquidityGauge, alice, mock_lp_token, cortex_minter, voting_escrow):
+    yield CortexLiquidityGauge.deploy(mock_lp_token, cortex_minter, alice, voting_escrow, {"from": alice})
 
 
 @pytest.fixture(scope="module")

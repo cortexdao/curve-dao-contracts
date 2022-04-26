@@ -20,7 +20,6 @@ interface CRV20:
 
 interface Minter:
     def token() -> address: view
-    def controller() -> address: view
     def minted(user: address, gauge: address) -> uint256: view
 
 interface VotingEscrow:
