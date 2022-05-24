@@ -10,3 +10,5 @@ reports/
 # vim
 *.swo
 *.swp
+
+.env
